@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 from database import (
-    get_db, close_db, init_db, seed_demo_data,
+    get_db, close_db, init_db, seed_demo_data, setup_database_on_startup,
     log_audit, add_notification, record_queue_event, generate_unique_token
 )
 from prediction_service import (
@@ -27,8 +27,33 @@ from prediction_service import (
 from train_model import train_and_evaluate
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "agriqueue-secret-key-development-2026")
-app.config["DATABASE_PATH"] = os.path.join(os.path.dirname(__file__), "instance", "agriqueue.db")
+
+# Configure SECRET_KEY: require environment variable in production, fallback only in development
+is_production = os.environ.get("FLASK_ENV") == "production" or os.environ.get("RENDER") is not None
+secret_key = os.environ.get("SECRET_KEY")
+
+if not secret_key:
+    if is_production:
+        raise RuntimeError(
+            "CRITICAL CONFIGURATION ERROR: SECRET_KEY environment variable is not set in production. "
+            "Please configure SECRET_KEY in your Render dashboard environment variables."
+        )
+    # Safe, explicit development-only fallback
+    secret_key = "dev-fallback-secret-key-change-in-production"
+
+app.config["SECRET_KEY"] = secret_key
+
+# Allow DATABASE_PATH to be configured via environment variable while preserving local SQLite default
+app.config["DATABASE_PATH"] = os.environ.get(
+    "DATABASE_PATH",
+    os.path.join(os.path.dirname(__file__), "instance", "agriqueue.db")
+)
+
+# Ensure database schema is safely initialized on startup (under Gunicorn or direct execution)
+# Only run if not in testing mode so isolated unit test suites control their own databases
+if not os.environ.get("FLASK_TESTING"):
+    with app.app_context():
+        setup_database_on_startup(app.config["DATABASE_PATH"])
 
 # Teardown database connection after request
 app.teardown_appcontext(close_db)
@@ -1314,20 +1339,11 @@ def internal_error(error):
 # -------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # Ensure database is initialized before starting
-    if not os.path.exists(app.config["DATABASE_PATH"]):
-        print("Initializing AgriQueue database on startup...")
-        init_db(db_path=app.config["DATABASE_PATH"])
-        seed_demo_data(db_path=app.config["DATABASE_PATH"])
-
-    # Ensure model is available
-    model, _ = get_cached_model()
-    if model is None:
-        print("Training initial waiting-time model...")
-        train_and_evaluate()
+    port = int(os.environ.get("PORT", 5000))
+    debug_mode = os.environ.get("FLASK_DEBUG", "0").lower() in ("true", "1", "yes")
 
     print("\n" + "=" * 60)
     print("🌾 AGRIQUEUE SERVER STARTING")
-    print("📍 URL: http://127.0.0.1:5000")
+    print(f"📍 URL: http://127.0.0.1:{port}")
     print("=" * 60)
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)

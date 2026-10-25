@@ -361,25 +361,26 @@ git push -u origin main
 
 ---
 
-## 13. Production Deployment Guide
+## 13. Production Deployment Guide (Render)
 
-For public demonstration or hosting on cloud platforms like **Render**, **Railway**, or **PythonAnywhere**:
+### Method A: Web Service via Render Dashboard
+1. Go to **[Render Dashboard](https://dashboard.render.com)** → Click **New +** → Select **Web Service**.
+2. Connect your **`AgriQueue`** GitHub repository.
+3. Configure the service settings:
+   - **Name:** `agriqueue`
+   - **Environment:** `Python 3`
+   - **Branch:** `main`
+   - **Build Command:** `./build.sh` *(or `pip install -r requirements.txt && python train_model.py`)*
+   - **Start Command:** `gunicorn app:app`
+4. Configure **Environment Variables** under the Environment tab:
+   - `SECRET_KEY`: Set a secure random string (e.g. run `python -c "import secrets; print(secrets.token_hex(32))"`)
+   - `FLASK_ENV`: `production`
+   - `DEMO_MODE`: `true` *(seeds initial demo mandis & farmers on first launch; set to `false` for clean production)*
+   - `DATABASE_PATH`: `instance/agriqueue.db` *(or `/var/data/agriqueue.db` if attaching a Render Persistent Disk)*
+5. Click **Create Web Service**. Render executes `./build.sh` (installing dependencies & generating the ML model artifact), safely initializes SQLite schema, and boots Gunicorn on `$PORT`.
 
-1. **Environment Variables:**
-   - `SECRET_KEY`: Set a cryptographically secure random string (e.g. `python -c "import secrets; print(secrets.token_hex(32))"`).
-   - `FLASK_ENV`: Set to `production`.
-   - `DATABASE_PATH`: Set to a persistent disk volume (or migrate connection to PostgreSQL using `psycopg2`).
-2. **WSGI Production Server:**
-   Install `gunicorn`:
-   ```bash
-   pip install gunicorn
-   ```
-   Start command:
-   ```bash
-   gunicorn -w 4 -b 0.0.0.0:$PORT app:app
-   ```
-3. **Model Artifact Availability:**
-   Ensure `ml/waiting_time_model.joblib` is generated during the build step (`python train_model.py`) or packaged into the deployment container.
+### Method B: Render Blueprint (Infrastructure as Code)
+The repository includes a pre-configured `render.yaml`. On Render, navigate to **Blueprints** → Connect your repository → Render will automatically configure the build command, start command, and generate a secure `SECRET_KEY`.
 
 ---
 

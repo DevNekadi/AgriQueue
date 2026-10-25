@@ -9,7 +9,10 @@ from datetime import datetime, date, timedelta
 from flask import g, current_app
 from werkzeug.security import generate_password_hash
 
-DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), "instance", "agriqueue.db")
+DEFAULT_DB_PATH = os.environ.get(
+    "DATABASE_PATH",
+    os.path.join(os.path.dirname(__file__), "instance", "agriqueue.db")
+)
 
 
 def get_db():
@@ -155,10 +158,10 @@ def seed_demo_data(db_path=None, reset=False):
         conn = get_direct_connection(db_path)
         cursor = conn.cursor()
 
-    # Check if admin exists
-    admin_exists = cursor.execute("SELECT id FROM users WHERE phone = '9876543210'").fetchone()
-    if admin_exists:
-        print("Demo data already seeded. Skipping.")
+    # Check if any users already exist in the database
+    existing_user_count = cursor.execute("SELECT COUNT(*) as count FROM users").fetchone()
+    if existing_user_count and existing_user_count["count"] > 0:
+        print("Database already contains user records. Skipping demo seeding to preserve existing data.")
         conn.close()
         return
 
@@ -424,6 +427,33 @@ def seed_demo_data(db_path=None, reset=False):
     conn.commit()
     conn.close()
     print("Demo data seeded successfully with realistic MP Mandi records.")
+
+
+def setup_database_on_startup(db_path=None):
+    """
+    Safely initialize SQLite schema and seed demo data on application startup.
+    Guarantees schema exists when running under Gunicorn without overwriting existing data.
+    """
+    if not db_path:
+        db_path = DEFAULT_DB_PATH
+
+    db_dir = os.path.dirname(db_path)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
+
+    # Check if DB file is brand new before schema init
+    db_is_brand_new = not os.path.exists(db_path) or os.path.getsize(db_path) == 0
+
+    # Ensure schema tables exist (idempotent CREATE TABLE IF NOT EXISTS)
+    init_db(db_path=db_path)
+
+    # Only seed demo data if explicitly requested via DEMO_MODE and DB was brand new
+    demo_mode_enabled = os.environ.get("DEMO_MODE", "false").lower() in ("true", "1", "yes")
+    if db_is_brand_new and demo_mode_enabled:
+        print("New database detected with DEMO_MODE enabled. Seeding initial demo records...")
+        seed_demo_data(db_path=db_path, reset=False)
+    else:
+        print(f"Database verified at {db_path} (seeding skipped: brand_new={db_is_brand_new}, demo_mode={demo_mode_enabled}).")
 
 
 if __name__ == "__main__":
