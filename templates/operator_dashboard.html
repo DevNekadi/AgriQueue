@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Operator Console | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+  <!-- Top Operator Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <span class="role-pill operator mb-1">Mandi Operations Desk</span>
+      <h2 class="mb-0">{{ operator_center.name if operator_center else 'All Assigned Mandis' }}</h2>
+      <p class="text-muted small mb-0">Officer in Charge: {{ session.get('user_name') }} • Date: {{ today_str }}</p>
+    </div>
+    <div class="d-flex gap-2">
+      <!-- Call Next Eligible Farmer Primary Action -->
+      <form method="POST" action="{{ url_for('call_next_farmer') }}">
+        <input type="hidden" name="center_id" value="{{ operator_center.id if operator_center else '' }}">
+        <button type="submit" class="btn btn-agri-primary btn-lg shadow-sm">
+          <i data-lucide="megaphone"></i> Call Next Farmer
+        </button>
+      </form>
+      <a href="{{ url_for('manage_queue') }}" class="btn btn-agri-secondary btn-lg">
+        <i data-lucide="list-ordered"></i> Full Queue
+      </a>
+    </div>
+  </div>
+
+  <!-- Real-time Operational Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-box">
+        <div class="stat-icon-wrapper" style="background-color: var(--soft-sage); color: var(--forest-green);">
+          <i data-lucide="users"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ stats.total_today }}</div>
+          <div class="stat-label">Total Bookings Today</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-box">
+        <div class="stat-icon-wrapper" style="background-color: #ffeccf; color: #a45a00;">
+          <i data-lucide="clock"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ stats.waiting_count }}</div>
+          <div class="stat-label">Waiting in Mandi Yard</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-box">
+        <div class="stat-icon-wrapper" style="background-color: var(--pale-wheat); color: var(--dark-soil);">
+          <i data-lucide="scale"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ stats.in_progress_count }}</div>
+          <div class="stat-label">At Weighbridge Counters</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-box">
+        <div class="stat-icon-wrapper" style="background-color: #e2f0d9; color: var(--leaf-green);">
+          <i data-lucide="check-circle-2"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ stats.completed_count }}</div>
+          <div class="stat-label">Procured ({{ stats.total_quintals_procured }} Qtl)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Queue Operational Table -->
+  <div class="agri-card p-0 shadow">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0">Today's Procurement Queue</h5>
+        <span class="badge bg-secondary" style="background-color: var(--forest-green) !important;">{{ bookings|length }} Bookings</span>
+      </div>
+      <div class="d-flex gap-2">
+        <input type="text" id="table-quick-search" class="form-control form-control-sm" placeholder="Filter by Token or Farmer..." style="max-width: 260px;">
+        <button class="btn btn-sm btn-outline-success" onclick="location.reload();">
+          <i data-lucide="rotate-cw" style="width: 14px; height: 14px;"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover table-agri align-middle mb-0 filter-target-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Farmer Details</th>
+            <th>Crop &amp; Declared Qtl</th>
+            <th>Slot</th>
+            <th>Status</th>
+            <th>AI Est. Wait</th>
+            <th>Counter</th>
+            <th>Quick Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if bookings %}
+            {% for b in bookings %}
+              <tr>
+                <td>
+                  <span class="font-monospace fw-bold fs-6 text-dark">{{ b.token_number }}</span>
+                </td>
+                <td>
+                  <div class="fw-bold">{{ b.farmer_name }}</div>
+                  <div class="text-muted small">{{ b.farmer_phone }} • {{ b.village or 'Bhopal' }}</div>
+                </td>
+                <td>
+                  <div class="fw-bold small">{{ b.crop_name }}</div>
+                  <span class="badge bg-light text-dark border">{{ b.estimated_quantity }} Qtl</span>
+                </td>
+                <td>
+                  <div class="small">{{ b.time_slot }}</div>
+                </td>
+                <td>
+                  <span class="status-pill {{ b.status.lower() }}">{{ b.status }}</span>
+                </td>
+                <td>
+                  {% if b.status in ['WAITING', 'CONFIRMED'] %}
+                    <span class="badge bg-dark" title="Inferred using RandomForestRegressor">
+                      ~{{ b.pred_wait }} min
+                    </span>
+                  {% elif b.status == 'IN_PROGRESS' %}
+                    <span class="text-success fw-bold small">At Counter</span>
+                  {% elif b.status == 'COMPLETED' %}
+                    <span class="text-muted small">Done</span>
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="fw-bold">{{ b.assigned_counter or '—' }}</span>
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    <!-- State Transitions based on current state -->
+                    {% if b.status == 'REQUESTED' %}
+                      <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                        <input type="hidden" name="status" value="CONFIRMED">
+                        <button type="submit" class="btn btn-sm btn-success py-1 px-2" title="Confirm Booking">Confirm</button>
+                      </form>
+                      <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" data-bs-toggle="modal" data-bs-target="#rejectModal{{ b.id }}">Reject</button>
+
+                    {% elif b.status == 'CONFIRMED' %}
+                      <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                        <input type="hidden" name="status" value="WAITING">
+                        <button type="submit" class="btn btn-sm btn-agri-primary py-1 px-2" title="Mark Farmer Arrived in Yard">
+                          Mark Arrived
+                        </button>
+                      </form>
+
+                    {% elif b.status == 'WAITING' %}
+                      <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                        <input type="hidden" name="status" value="CALLED">
+                        <button type="submit" class="btn btn-sm btn-warning py-1 px-2 text-dark" title="Call Farmer to Counter">
+                          Call Next
+                        </button>
+                      </form>
+                      <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-bs-toggle="modal" data-bs-target="#skipModal{{ b.id }}">Skip</button>
+
+                    {% elif b.status == 'CALLED' %}
+                      <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                        <input type="hidden" name="status" value="IN_PROGRESS">
+                        <button type="submit" class="btn btn-sm btn-primary py-1 px-2" title="Start Produce Weighing">
+                          Start Weighing
+                        </button>
+                      </form>
+                      <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-bs-toggle="modal" data-bs-target="#skipModal{{ b.id }}">Skip</button>
+
+                    {% elif b.status == 'IN_PROGRESS' %}
+                      <a href="{{ url_for('record_procurement', booking_id=b.id) }}" class="btn btn-sm btn-agri-primary py-1 px-2" title="Record Actual Quantity and Complete">
+                        <i data-lucide="scale" style="width: 14px; height: 14px;"></i> Record Weighment
+                      </a>
+
+                    {% elif b.status == 'SKIPPED' %}
+                      <form method="POST" action="{{ url_for('requeue_booking', booking_id=b.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success py-1 px-2" title="Requeue Farmer">
+                          Requeue
+                        </button>
+                      </form>
+
+                    {% elif b.status == 'COMPLETED' %}
+                      <a href="{{ url_for('booking_details', booking_id=b.id) }}" class="btn btn-sm btn-outline-secondary py-1 px-2">
+                        Slip
+                      </a>
+                    {% endif %}
+                  </div>
+
+                  <!-- Modal for Reject Reason -->
+                  <div class="modal fade" id="rejectModal{{ b.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                          <input type="hidden" name="status" value="REJECTED">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Reject Token {{ b.token_number }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <label class="form-label">Reason for Rejection <span class="text-danger">*</span></label>
+                            <input type="text" name="reason" class="form-control" required placeholder="e.g. Center daily quota reached or unsupported variety">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal for Skip Reason -->
+                  <div class="modal fade" id="skipModal{{ b.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <form method="POST" action="{{ url_for('update_booking_status', booking_id=b.id) }}">
+                          <input type="hidden" name="status" value="SKIPPED">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Skip Farmer Token {{ b.token_number }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <label class="form-label">Recorded Reason for Skipping <span class="text-danger">*</span></label>
+                            <input type="text" name="reason" class="form-control" required placeholder="e.g. Farmer not present at yard when called 3 times">
+                            <div class="form-text small">Skipped farmers can be requeued later when they arrive.</div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning">Confirm Skip</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">
+                No bookings scheduled for today at this Mandi yard.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Cross-Center Bookings Oversight | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Dashboard</a>
+      <h2 class="mb-0">State-Wide Procurement Bookings Oversight</h2>
+      <p class="text-muted small mb-0">Live audit and tracking of all tokens issued across Madhya Pradesh mandi yards.</p>
+    </div>
+  </div>
+
+  <div class="agri-card p-0 shadow">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <input type="text" id="table-quick-search" class="form-control form-control-sm" placeholder="Search by Token, Farmer Name or Phone..." style="max-width: 320px;">
+      <span class="small text-muted">Total: {{ bookings|length }} Bookings Recorded</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover table-agri align-middle mb-0 filter-target-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Farmer (Kisan)</th>
+            <th>Mandi Center</th>
+            <th>Crop</th>
+            <th>Quantity</th>
+            <th>Date &amp; Slot</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+            <tr>
+              <td><span class="font-monospace fw-bold">{{ b.token_number }}</span></td>
+              <td>
+                <div class="fw-bold">{{ b.farmer_name }}</div>
+                <div class="text-muted small">{{ b.farmer_phone }}</div>
+              </td>
+              <td>{{ b.center_name }}</td>
+              <td>{{ b.crop_name }}</td>
+              <td>{{ b.estimated_quantity }} Qtl</td>
+              <td>
+                <div class="small">{{ b.booking_date }}</div>
+                <div class="text-muted small">{{ b.time_slot }}</div>
+              </td>
+              <td>
+                <span class="status-pill {{ b.status.lower() }}">{{ b.status }}</span>
+              </td>
+              <td>
+                <a href="{{ url_for('booking_details', booking_id=b.id) }}" class="btn btn-sm btn-outline-secondary py-1 px-2">
+                  Inspect
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

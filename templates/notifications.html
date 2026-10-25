@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2>In-App Notifications</h2>
+      <p class="text-muted small mb-0">System alerts regarding your procurement token confirmations, turn calls, and weighments.</p>
+    </div>
+    {% if notifications %}
+      <form method="POST" action="{{ url_for('mark_notifications_read') }}">
+        <button type="submit" class="btn btn-sm btn-outline-success">
+          <i data-lucide="check-check" style="width: 14px; height: 14px;"></i> Mark All as Read
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      {% if notifications %}
+        {% for n in notifications %}
+          <div class="notif-card {% if not n.is_read %}unread{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                {% if n.type == 'success' %}
+                  <i data-lucide="check-circle" class="text-success" style="width: 18px; height: 18px;"></i>
+                {% elif n.type == 'warning' %}
+                  <i data-lucide="alert-triangle" class="text-warning" style="width: 18px; height: 18px;"></i>
+                {% else %}
+                  <i data-lucide="bell" class="text-primary" style="width: 18px; height: 18px;"></i>
+                {% endif %}
+                {{ n.title }}
+              </h6>
+              <span class="small text-muted" style="font-size: 0.75rem;">{{ n.created_at }}</span>
+            </div>
+            <p class="small text-muted mb-0 ps-4">{{ n.message }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="agri-card text-center py-5">
+          <i data-lucide="bell-off" style="width: 48px; height: 48px;" class="text-muted mb-2"></i>
+          <h5>No Notifications</h5>
+          <p class="text-muted small">You are all caught up! Booking updates and turn alerts will appear here.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

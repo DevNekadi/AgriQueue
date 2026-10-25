@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="agri-card shadow">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex p-3 rounded-circle mb-3" style="background-color: var(--soft-sage); color: var(--forest-green);">
+            <i data-lucide="log-in" style="width: 32px; height: 32px;"></i>
+          </div>
+          <h3>Welcome to AgriQueue</h3>
+          <p class="text-muted small">Enter your credentials to access your procurement portal</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}">
+          <div class="mb-3">
+            <label for="identifier" class="form-label">Phone Number or Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i data-lucide="phone"></i></span>
+              <input type="text" class="form-control" id="identifier" name="identifier" required placeholder="e.g. 9826011111" autofocus>
+            </div>
+            <div class="form-text">Farmers can enter their 10-digit registered mobile number.</div>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i data-lucide="lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password" required placeholder="Enter your password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-agri-primary w-100 mb-3 justify-content-center">
+            Sign In to Portal
+          </button>
+        </form>
+
+        <div class="text-center small mt-3">
+          Don't have a farmer account yet? <a href="{{ url_for('register') }}" class="fw-bold" style="color: var(--forest-green);">Register here</a>
+        </div>
+
+        <!-- One-Click Demonstration Login Credentials for Viva / Evaluation -->
+        <hr class="my-4">
+        <div class="p-3 rounded" style="background-color: var(--warm-ivory); border: 1px dashed var(--sprout-green);">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i data-lucide="key" style="width: 16px; height: 16px; color: var(--forest-green);"></i>
+            <span class="fw-bold small text-dark">Viva &amp; Demo Credentials</span>
+          </div>
+          <p class="small text-muted mb-2">Click any account to prefill credentials (Password: <code>Agri@1234</code>):</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-outline-success py-1 px-2" onclick="fillCredentials('9826011111', 'Agri@1234')">
+              👨‍🌾 Farmer (Ramesh)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2" onclick="fillCredentials('9876500001', 'Agri@1234')">
+              🏢 Operator (Bhopal)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-dark py-1 px-2" onclick="fillCredentials('9876543210', 'Agri@1234')">
+              🛡️ Admin (Director)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillCredentials(id, pass) {
+  document.getElementById("identifier").value = id;
+  document.getElementById("password").value = pass;
+}
+</script>
+{% endblock %}

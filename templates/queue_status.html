@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Live Turn Tracker | AgriQueue Token {{ booking.token_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" id="live-queue-tracker" data-booking-id="{{ booking.id }}">
+  <!-- Top Breadcrumb & Status -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+      <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Dashboard</a>
+      <h2 class="mb-0">Live Queue Turn Tracker</h2>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="status-pill {{ booking.status.lower() }}" id="poll-status-pill">{{ booking.status }}</span>
+      <button class="btn btn-sm btn-outline-success" onclick="location.reload();" title="Refresh Live State">
+        <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Main Queue & Token Tracker -->
+    <div class="col-lg-8">
+      <!-- Token Hero Display -->
+      <div class="token-badge-large mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="small text-uppercase" style="color: var(--sprout-green); letter-spacing: 0.1em; font-weight: 700;">
+            Kisan Smart Procurement Token
+          </span>
+          <span class="badge" style="background-color: rgba(168, 201, 122, 0.25); color: #fff;">
+            {{ booking.booking_date }}
+          </span>
+        </div>
+        <div class="token-code mb-2">{{ booking.token_number }}</div>
+        <div class="small" style="color: var(--pale-wheat);">
+          <strong>{{ booking.center_name }}</strong> • Slot: {{ booking.time_slot }}
+        </div>
+      </div>
+
+      <!-- Growing Plant / Queue Journey Steps -->
+      <div class="agri-card mb-4">
+        <h5 class="mb-4">Queue Progress Journey</h5>
+        <div class="queue-journey">
+          <div class="queue-step {% if booking.status in ['REQUESTED', 'CONFIRMED', 'WAITING', 'CALLED', 'IN_PROGRESS', 'COMPLETED'] %}completed{% endif %}">
+            <div class="queue-node"><i data-lucide="file-check"></i></div>
+            <div class="queue-label">Booked</div>
+          </div>
+          <div class="queue-step {% if booking.status in ['CONFIRMED', 'WAITING', 'CALLED', 'IN_PROGRESS', 'COMPLETED'] %}completed{% elif booking.status == 'REQUESTED' %}active{% endif %}">
+            <div class="queue-node"><i data-lucide="check"></i></div>
+            <div class="queue-label">Confirmed</div>
+          </div>
+          <div class="queue-step {% if booking.status in ['WAITING', 'CALLED', 'IN_PROGRESS', 'COMPLETED'] %}completed{% elif booking.status == 'CONFIRMED' %}active{% endif %}">
+            <div class="queue-node"><i data-lucide="map-pin"></i></div>
+            <div class="queue-label">In Mandi Yard</div>
+          </div>
+          <div class="queue-step {% if booking.status in ['CALLED', 'IN_PROGRESS', 'COMPLETED'] %}completed{% elif booking.status == 'WAITING' %}active{% endif %}">
+            <div class="queue-node"><i data-lucide="bell"></i></div>
+            <div class="queue-label">Called</div>
+          </div>
+          <div class="queue-step {% if booking.status in ['IN_PROGRESS', 'COMPLETED'] %}completed{% elif booking.status == 'CALLED' %}active{% endif %}">
+            <div class="queue-node"><i data-lucide="scale"></i></div>
+            <div class="queue-label">In Weighing</div>
+          </div>
+          <div class="queue-step {% if booking.status == 'COMPLETED' %}completed{% endif %}">
+            <div class="queue-node"><i data-lucide="award"></i></div>
+            <div class="queue-label">Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Waiting-Time Prediction Feature Banner -->
+      <div class="ai-prediction-card mb-4 shadow">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="ai-meta-tag">{{ pred.source }}</span>
+          <span class="small" style="color: var(--pale-wheat);">
+            <i data-lucide="clock" style="width: 14px; height: 14px;"></i> {{ pred.timestamp }}
+          </span>
+        </div>
+
+        <div class="row align-items-center g-3">
+          <div class="col-md-7">
+            <div class="text-uppercase small" style="color: var(--pale-wheat); letter-spacing: 0.05em; font-weight: 600;">
+              Your Estimated Waiting Time
+            </div>
+            <div class="ai-pred-number my-2" id="poll-pred-wait">{{ pred.formatted_wait }}</div>
+            <p class="small mb-0" style="color: var(--soft-sage);">
+              {{ pred.explanation }}
+            </p>
+          </div>
+
+          <div class="col-md-5">
+            <div class="p-3 rounded text-center" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(168,201,122,0.3);">
+              <div class="small text-uppercase text-white-50">Current Position</div>
+              <div class="stat-value text-white my-1" id="poll-queue-pos">
+                {% if pred.queue_position > 0 %}#{{ pred.queue_position }}{% else %}Ready{% endif %}
+              </div>
+              <div class="small" style="color: var(--sprout-green);" id="poll-farmers-ahead">
+                {{ pred.farmers_ahead }} farmer(s) ahead of you
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-top small" style="border-color: rgba(168,201,122,0.25); color: #d0e1c6;">
+          <i data-lucide="info" style="width: 14px; height: 14px;" class="me-1"></i>
+          Predictions update dynamically as farmers ahead complete weighing or new counters open.
+        </div>
+      </div>
+
+      <!-- Produce & Booking Details -->
+      <div class="agri-card">
+        <h5 class="mb-3">Booking Information</h5>
+        <div class="row g-3 small">
+          <div class="col-sm-6">
+            <span class="text-muted">Farmer Name:</span><br>
+            <strong>{{ booking.farmer_name }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Mobile Number:</span><br>
+            <strong>{{ booking.farmer_phone }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Crop Variety:</span><br>
+            <strong>{{ booking.crop_name }} ({{ booking.crop_category }})</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Estimated Load:</span><br>
+            <strong>{{ booking.estimated_quantity }} Quintals (~{{ (booking.estimated_quantity * 100)|int }} Kg)</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Assigned Weighbridge Counter:</span><br>
+            <strong>Counter #{{ booking.assigned_counter or 'Will be assigned on arrival' }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Booking Reference Date:</span><br>
+            <strong>{{ booking.booking_date }} ({{ booking.time_slot }})</strong>
+          </div>
+        </div>
+
+        <!-- Cancellation if eligible -->
+        {% if booking.status in ['REQUESTED', 'CONFIRMED'] %}
+          <hr class="my-3">
+          <form method="POST" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to cancel this procurement slot?');">
+            <button type="submit" class="btn btn-sm btn-agri-terracotta">
+              <i data-lucide="x-circle"></i> Cancel Procurement Booking
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Side Help & Guidance -->
+    <div class="col-lg-4">
+      <div class="agri-card mb-4" style="background-color: var(--soft-sage); border-color: var(--leaf-green);">
+        <h5 class="mb-3">Mandi Entry Protocol</h5>
+        <div class="small">
+          <p><strong>1. Gate Arrival:</strong> Show your token <code>{{ booking.token_number }}</code> at the gatekeeper kiosk.</p>
+          <p><strong>2. Physical Arrival:</strong> Once verified by gate operator, your status becomes <strong>WAITING</strong>.</p>
+          <p><strong>3. Counter Call:</strong> When your token is called, steer your trolley directly to the assigned weighbridge.</p>
+          <p><strong>4. Sample Inspection:</strong> Mandatory electronic moisture probe and dockage test will be completed.</p>
+        </div>
+      </div>
+
+      <div class="agri-card">
+        <h6 class="fw-bold mb-2">Need Assistance?</h6>
+        <p class="small text-muted mb-2">Mandi Yard Control Room helpline for Bhopal &amp; Sehore:</p>
+        <div class="d-flex align-items-center gap-2 small">
+          <i data-lucide="phone-call" class="text-success"></i>
+          <strong>0755-2741234 (09:00 AM - 05:00 PM)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

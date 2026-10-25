@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 380" fill="none">
+  <!-- Agricultural Background Glow & Soil Horizons -->
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#214E34" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#153B2A"/>
+    </linearGradient>
+    <linearGradient id="wheatGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EEE5C8"/>
+      <stop offset="100%" stop-color="#A8C97A"/>
+    </linearGradient>
+    <linearGradient id="tokenCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8F6EC"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Farmland Terraces & Furrows -->
+  <path d="M0 240C90 220 180 250 280 230C380 210 460 225 540 215V380H0V240Z" fill="#295b3d" opacity="0.6"/>
+  <path d="M0 270C80 260 190 275 300 255C410 235 480 250 540 240V380H0V270Z" fill="#1d442c"/>
+  <path d="M0 310C110 295 240 315 360 295C450 280 500 290 540 285V380H0V310Z" fill="#153B2A"/>
+
+  <!-- Field Furrow Lines -->
+  <path d="M30 380C140 330 320 290 490 275" stroke="#A8C97A" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.4"/>
+  <path d="M80 380C190 340 360 305 520 295" stroke="#A8C97A" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.4"/>
+
+  <!-- Botanical Crops / Wheat Stalks Growing -->
+  <g transform="translate(45, 160)" stroke="#EEE5C8" stroke-width="2" stroke-linecap="round">
+    <path d="M15 110C15 70 12 40 10 20"/>
+    <ellipse cx="6" cy="22" rx="4" ry="8" fill="#EEE5C8" transform="rotate(-30 6 22)"/>
+    <ellipse cx="14" cy="28" rx="4" ry="8" fill="#EEE5C8" transform="rotate(30 14 28)"/>
+    <ellipse cx="7" cy="40" rx="4" ry="8" fill="#EEE5C8" transform="rotate(-30 7 40)"/>
+    <ellipse cx="15" cy="46" rx="4" ry="8" fill="#EEE5C8" transform="rotate(30 15 46)"/>
+    <ellipse cx="8" cy="58" rx="4" ry="8" fill="#EEE5C8" transform="rotate(-30 8 58)"/>
+  </g>
+
+  <g transform="translate(85, 180)" stroke="#A8C97A" stroke-width="2" stroke-linecap="round">
+    <path d="M12 90C14 60 18 35 22 15"/>
+    <ellipse cx="16" cy="18" rx="3.5" ry="7" fill="#A8C97A" transform="rotate(-25 16 18)"/>
+    <ellipse cx="26" cy="24" rx="3.5" ry="7" fill="#A8C97A" transform="rotate(25 26 24)"/>
+    <ellipse cx="18" cy="36" rx="3.5" ry="7" fill="#A8C97A" transform="rotate(-25 18 36)"/>
+    <ellipse cx="28" cy="42" rx="3.5" ry="7" fill="#A8C97A" transform="rotate(25 28 42)"/>
+  </g>
+
+  <!-- Live Queue Token Card Overlay (Interactive Preview) -->
+  <g transform="translate(220, 45)">
+    <!-- Shadow -->
+    <rect x="0" y="8" width="280" height="250" rx="18" fill="#0c2319" opacity="0.4"/>
+    <!-- Card Base -->
+    <rect x="0" y="0" width="280" height="250" rx="18" fill="url(#tokenCardGrad)" stroke="#A8C97A" stroke-width="2"/>
+    
+    <!-- Header band -->
+    <path d="M0 18C0 8.05887 8.05887 0 18 0H262C271.941 0 280 8.05887 280 18V50H0V18Z" fill="#214E34"/>
+    <circle cx="22" cy="25" r="5" fill="#A8C97A"/>
+    <text x="36" y="29" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="700" font-size="12" fill="#FFFFFF">LIVE PROCUREMENT TOKEN</text>
+    <rect x="200" y="15" width="65" height="20" rx="10" fill="#4F8A45"/>
+    <text x="213" y="29" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="700" font-size="10" fill="#FFFFFF">ACTIVE</text>
+
+    <!-- Token ID -->
+    <text x="24" y="85" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="10" fill="#687467" letter-spacing="0.5">TOKEN NUMBER</text>
+    <text x="24" y="112" font-family="monospace" font-weight="800" font-size="20" fill="#153B2A">AQ-20261026-0003</text>
+
+    <!-- Position & Est Wait Badges -->
+    <rect x="24" y="130" width="105" height="60" rx="10" fill="#DDE8D3" stroke="#A8C97A" stroke-width="1"/>
+    <text x="36" y="150" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="9" fill="#214E34">QUEUE POSITION</text>
+    <text x="36" y="178" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="22" fill="#153B2A">#3 <tspan font-size="11" font-weight="600" fill="#4F8A45">(2 ahead)</tspan></text>
+
+    <rect x="140" y="130" width="115" height="60" rx="10" fill="#153B2A"/>
+    <text x="150" y="150" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="9" fill="#A8C97A">AI PREDICTED WAIT</text>
+    <text x="150" y="178" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="20" fill="#EEE5C8">~12 min</text>
+
+    <!-- Center & Produce details -->
+    <line x1="24" y1="205" x2="255" y2="205" stroke="#DDE8D3" stroke-width="1.5"/>
+    <circle cx="32" cy="225" r="4" fill="#4F8A45"/>
+    <text x="44" y="229" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-weight="600" font-size="11" fill="#44392D">Karond Mandi • Sharbati Wheat (55 Qtl)</text>
+  </g>
+</svg>

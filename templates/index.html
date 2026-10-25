@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}AgriQueue — Less Waiting. More Growing.{% endblock %}
+
+{% block content %}
+<!-- 1. Hero Section (Asymmetric Layout with Visual Token Preview) -->
+<section class="hero-section">
+  <div class="container position-relative" style="z-index: 2;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="hero-badge">
+          <i data-lucide="sprout" style="width: 16px; height: 16px;"></i>
+          <span>Smart Kisan Mandi Token Portal</span>
+        </div>
+        <h1 class="hero-title">
+          Less Waiting.<br>
+          <span style="color: var(--sprout-green);">More Growing.</span>
+        </h1>
+        <p class="hero-subtitle">
+          AgriQueue helps farmers plan procurement visits, track their place in line, and spend less time waiting at the center. Powered by machine learning waiting-time estimation.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{{ url_for('booking') }}" class="btn btn-agri-primary btn-lg">
+            <i data-lucide="ticket"></i> Book Your Queue
+          </a>
+          <a href="#how-it-works" class="btn btn-agri-outline btn-lg">
+            <i data-lucide="compass"></i> See How It Works
+          </a>
+        </div>
+        <div class="mt-4 pt-3 d-flex align-items-center gap-4 text-white-50 small">
+          <div class="d-flex align-items-center gap-2">
+            <i data-lucide="check" class="text-success" style="color: var(--sprout-green) !important;"></i>
+            <span class="text-white">Zero Token Duplication</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i data-lucide="check" class="text-success" style="color: var(--sprout-green) !important;"></i>
+            <span class="text-white">Live Queue Transparency</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i data-lucide="check" class="text-success" style="color: var(--sprout-green) !important;"></i>
+            <span class="text-white">MSP Price Assured</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5 text-center">
+        <!-- Botanical Illustration with Live Token Preview -->
+        <img src="{{ url_for('static', filename='images/hero_illustration.svg') }}" alt="AgriQueue Smart Kisan Queue Preview" class="img-fluid" style="max-height: 400px; filter: drop-shadow(0 12px 28px rgba(0,0,0,0.3));">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. The Problem We Solve -->
+<section class="py-5" style="background-color: var(--warm-ivory);">
+  <div class="container py-4">
+    <div class="text-center max-w-700 mx-auto mb-5">
+      <span class="role-pill farmer mb-2">Ground Reality</span>
+      <h2 class="mt-2">The Challenge at Traditional Mandis</h2>
+      <p class="text-muted">Why traditional first-come-first-served procurement queues harm smallholder farmers.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="stat-icon-wrapper mb-3" style="background-color: #fde8e4; color: var(--terracotta);">
+            <i data-lucide="clock-alert"></i>
+          </div>
+          <h5>Hours of Idle Waiting</h5>
+          <p class="text-muted small">
+            Farmers often park tractor-trolleys overnight in extreme heat or rain without knowing whether their produce will be procured today or carried over.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="stat-icon-wrapper mb-3" style="background-color: var(--pale-wheat); color: var(--dark-soil);">
+            <i data-lucide="traffic-cone"></i>
+          </div>
+          <h5>Mandi Yard Congestion</h5>
+          <p class="text-muted small">
+            Unplanned simultaneous arrival of hundreds of vehicles leads to severe traffic jams at weighbridges, moisture testing labs, and bag unloading zones.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="stat-icon-wrapper mb-3" style="background-color: var(--soft-sage); color: var(--forest-green);">
+            <i data-lucide="eye-off"></i>
+          </div>
+          <h5>Lack of Turn Transparency</h5>
+          <p class="text-muted small">
+            Manual paper slips create uncertainty, disputes over queue order, and difficulty for operators managing daily procurement targets.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Illustrated 5-Step Process -->
+<section id="how-it-works" class="py-5 bg-white border-top border-bottom">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <span class="role-pill farmer mb-2">Simple 5-Step Workflow</span>
+      <h2 class="mt-2">How AgriQueue Works</h2>
+      <p class="text-muted">Designed for ease of use by farmers and mandi operators alike.</p>
+    </div>
+
+    <div class="row g-4 text-center">
+      <div class="col-lg col-md-4 col-sm-6">
+        <div class="p-3">
+          <div class="queue-node active mb-3 mx-auto" style="width: 56px; height: 56px;">
+            <i data-lucide="map-pin"></i>
+          </div>
+          <h6 class="fw-bold mb-1">1. Choose Center</h6>
+          <p class="small text-muted">Select an approved MP Mandi procurement yard nearby.</p>
+        </div>
+      </div>
+
+      <div class="col-lg col-md-4 col-sm-6">
+        <div class="p-3">
+          <div class="queue-node active mb-3 mx-auto" style="width: 56px; height: 56px;">
+            <i data-lucide="calendar"></i>
+          </div>
+          <h6 class="fw-bold mb-1">2. Book a Slot</h6>
+          <p class="small text-muted">Pick a date, time slot, crop variety, and estimated load.</p>
+        </div>
+      </div>
+
+      <div class="col-lg col-md-4 col-sm-6">
+        <div class="p-3">
+          <div class="queue-node active mb-3 mx-auto" style="width: 56px; height: 56px;">
+            <i data-lucide="qr-code"></i>
+          </div>
+          <h6 class="fw-bold mb-1">3. Receive Token</h6>
+          <p class="small text-muted">Get a verified, sequential token (e.g., AQ-20261026-0003).</p>
+        </div>
+      </div>
+
+      <div class="col-lg col-md-4 col-sm-6">
+        <div class="p-3">
+          <div class="queue-node active mb-3 mx-auto" style="width: 56px; height: 56px;">
+            <i data-lucide="sparkles"></i>
+          </div>
+          <h6 class="fw-bold mb-1">4. Track Turn (AI)</h6>
+          <p class="small text-muted">Watch dynamic queue position &amp; AI-estimated wait minutes.</p>
+        </div>
+      </div>
+
+      <div class="col-lg col-md-4 col-sm-6">
+        <div class="p-3">
+          <div class="queue-node active mb-3 mx-auto" style="width: 56px; height: 56px;">
+            <i data-lucide="scale"></i>
+          </div>
+          <h6 class="fw-bold mb-1">5. Procure &amp; MSP</h6>
+          <p class="small text-muted">Produce weighed, moisture graded, and purchase recorded.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. AI-Based Waiting Time Feature Highlight -->
+<section class="py-5" style="background-color: var(--warm-ivory);">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="role-pill operator mb-2">Core Innovation</span>
+        <h2 class="mt-2">Machine Learning Queue Estimation</h2>
+        <p class="text-muted">
+          Unlike static clock estimates, AgriQueue employs a trained <strong>scikit-learn RandomForestRegressor</strong> that predicts the exact waiting time until your procurement service begins.
+        </p>
+        <ul class="list-unstyled mt-4 space-y-3">
+          <li class="d-flex align-items-start gap-3 mb-3">
+            <div class="stat-icon-wrapper" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i data-lucide="layers"></i>
+            </div>
+            <div>
+              <strong>Dynamic Queue Workload:</strong> Accounts for live farmers ahead and total tonnage in the yard.
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-3 mb-3">
+            <div class="stat-icon-wrapper" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i data-lucide="wheat"></i>
+            </div>
+            <div>
+              <strong>Crop-Specific Complexity:</strong> Oilseeds (Soybean/Mustard) take longer due to oil &amp; moisture laboratory tests than grains.
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-3 mb-3">
+            <div class="stat-icon-wrapper" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i data-lucide="git-branch"></i>
+            </div>
+            <div>
+              <strong>Multi-Counter Concurrency:</strong> Models service distribution across 1 to 4 active mandi counters.
+            </div>
+          </li>
+          <li class="d-flex align-items-start gap-3">
+            <div class="stat-icon-wrapper" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i data-lucide="shield-check"></i>
+            </div>
+            <div>
+              <strong>Fail-Safe Architecture:</strong> If the ML model is offline, a calibrated heuristic fallback immediately steps in without application downtime.
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="ai-prediction-card shadow-lg">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="ai-meta-tag">RandomForestRegressor Model v1</span>
+            <span class="badge bg-success" style="background-color: var(--leaf-green) !important;">Live Inference</span>
+          </div>
+          <div class="mb-4">
+            <div class="text-uppercase small" style="color: var(--pale-wheat); letter-spacing: 0.05em;">Estimated Wait Until Turn Begins</div>
+            <div class="ai-pred-number my-2">~ 18 mins</div>
+            <p class="small text-muted mb-0" style="color: var(--soft-sage) !important;">
+              Based on 2 farmers ahead, 3 active weighbridge counters, and 45.0 quintals of MP Sharbati Wheat.
+            </p>
+          </div>
+          <hr style="border-color: rgba(168, 201, 122, 0.3);">
+          <div class="row g-2 text-center small" style="color: var(--pale-wheat);">
+            <div class="col-4">
+              <div class="text-white fw-bold">MAE Metric</div>
+              <div>3.35 min error</div>
+            </div>
+            <div class="col-4">
+              <div class="text-white fw-bold">Baseline MAE</div>
+              <div>21.60 min error</div>
+            </div>
+            <div class="col-4">
+              <div class="text-white fw-bold">Test Samples</div>
+              <div>500 verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Centers & Supported Crops Preview -->
+<section class="py-5 bg-white border-top">
+  <div class="container py-4">
+    <div class="row g-4 align-items-center mb-4">
+      <div class="col-md-8">
+        <h2>Procurement Mandis &amp; Crops</h2>
+        <p class="text-muted">Current operational yards and supported Rabi/Kharif crops across Madhya Pradesh.</p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('centers') }}" class="btn btn-agri-secondary">View All Centers</a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="mb-0">Krishi Mandi Karond</h5>
+            <span class="badge bg-success" style="background-color: var(--leaf-green) !important;">Bhopal</span>
+          </div>
+          <p class="small text-muted mb-3"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> By-Pass Road, Bhopal, MP 462038</p>
+          <div class="small mb-2"><strong>Capacity:</strong> 60 farmers / day</div>
+          <div class="small mb-3"><strong>Active Counters:</strong> 3 weighbridges</div>
+          <a href="{{ url_for('booking') }}" class="btn btn-sm btn-agri-primary w-100">Book Token at Bhopal</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="mb-0">Sehore Main Krishi Mandi</h5>
+            <span class="badge bg-success" style="background-color: var(--leaf-green) !important;">Sehore</span>
+          </div>
+          <p class="small text-muted mb-3"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> Mandi Yard, Station Road, Sehore, MP 466001</p>
+          <div class="small mb-2"><strong>Capacity:</strong> 45 farmers / day</div>
+          <div class="small mb-3"><strong>Active Counters:</strong> 2 weighbridges</div>
+          <a href="{{ url_for('booking') }}" class="btn btn-sm btn-agri-primary w-100">Book Token at Sehore</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="agri-card h-100">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="mb-0">Berasia Sub-Yard</h5>
+            <span class="badge bg-success" style="background-color: var(--leaf-green) !important;">Bhopal Rural</span>
+          </div>
+          <p class="small text-muted mb-3"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> Narsinghgarh Road, Berasia, MP 463106</p>
+          <div class="small mb-2"><strong>Capacity:</strong> 30 farmers / day</div>
+          <div class="small mb-3"><strong>Active Counters:</strong> 2 weighbridges</div>
+          <a href="{{ url_for('booking') }}" class="btn btn-sm btn-agri-primary w-100">Book Token at Berasia</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Call to Action -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--forest-green) 0%, var(--deep-evergreen) 100%); color: var(--warm-ivory);">
+  <div class="container py-4 text-center">
+    <h2 class="text-white mb-3">Ready to Reserve Your Mandi Queue?</h2>
+    <p class="mb-4 text-white-50 max-w-600 mx-auto">
+      Avoid crowds and long lines. Register with your Kisan mobile number and book your harvest arrival slot today.
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{{ url_for('register') }}" class="btn btn-agri-primary btn-lg">Farmer Registration</a>
+      <a href="{{ url_for('login') }}" class="btn btn-agri-outline btn-lg">Sign In to Token Portal</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

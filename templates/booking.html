@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Book Procurement Slot | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="agri-card shadow">
+        <div class="agri-card-header">
+          <div>
+            <span class="role-pill farmer mb-1">Kisan Booking Portal</span>
+            <h3 class="mb-0">Schedule Procurement Visit</h3>
+          </div>
+          <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+        </div>
+
+        <form method="POST" action="{{ url_for('booking') }}">
+          <div class="row g-3 mb-4">
+            <!-- Center Selection -->
+            <div class="col-md-6">
+              <label for="center_id" class="form-label">Procurement Mandi Yard <span class="text-danger">*</span></label>
+              <select class="form-select" id="center_id" name="center_id" required>
+                <option value="" disabled {% if not selected_center_id %}selected{% endif %}>Select Mandi Yard</option>
+                {% for c in centers %}
+                  <option value="{{ c.id }}" {% if selected_center_id == c.id %}selected{% endif %}>
+                    {{ c.name }} ({{ c.district }})
+                  </option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Choose your nearest Mandi yard.</div>
+            </div>
+
+            <!-- Crop Selection -->
+            <div class="col-md-6">
+              <label for="booking-crop-select" class="form-label">Crop &amp; Variety <span class="text-danger">*</span></label>
+              <select class="form-select" id="booking-crop-select" name="crop_id" required>
+                <option value="" disabled selected>Select Crop</option>
+                {% for cr in crops %}
+                  <option value="{{ cr.id }}" data-msp="{{ cr.msp_price }}">
+                    {{ cr.name }} — ₹{{ cr.msp_price }}/Qtl
+                  </option>
+                {% endfor %}
+              </select>
+              <div class="form-text">Only FAQ compliant crops are accepted.</div>
+            </div>
+
+            <!-- Booking Date -->
+            <div class="col-md-6">
+              <label for="booking_date" class="form-label">Procurement Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="booking_date" name="booking_date" required min="{{ min_date }}" value="{{ min_date }}">
+              <div class="form-text">Mandis operate Mon–Sat (Closed on Sundays).</div>
+            </div>
+
+            <!-- Time Slot -->
+            <div class="col-md-6">
+              <label for="time_slot" class="form-label">Arrival Window (Time Slot) <span class="text-danger">*</span></label>
+              <select class="form-select" id="time_slot" name="time_slot" required>
+                <option value="09:00 - 11:00 AM" selected>Morning Slot 1 (09:00 - 11:00 AM)</option>
+                <option value="11:00 - 01:00 PM">Morning Slot 2 (11:00 - 01:00 PM)</option>
+                <option value="02:00 - 04:00 PM">Afternoon Slot (02:00 - 04:00 PM)</option>
+              </select>
+              <div class="form-text">Arrive 15 minutes before your booked window.</div>
+            </div>
+
+            <!-- Estimated Quantity -->
+            <div class="col-md-12">
+              <label for="booking-quantity-input" class="form-label">Estimated Harvest Quantity (in Quintals) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.5" min="1" max="500" class="form-control" id="booking-quantity-input" name="estimated_quantity" required placeholder="e.g. 45.0">
+                <span class="input-group-text">Quintals (1 Qtl = 100 Kg)</span>
+              </div>
+              <div class="form-text">Standard tractor-trolley typically holds 30–60 quintals.</div>
+            </div>
+          </div>
+
+          <!-- Live Estimated Value Preview Card -->
+          <div class="p-3 rounded mb-4" style="background-color: var(--soft-sage); border: 1px solid var(--sprout-green);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="text-muted small fw-bold text-uppercase">Estimated Minimum Support Price (MSP) Value:</span>
+                <div class="stat-value text-dark" id="estimated-msp-val">₹ 0.00</div>
+              </div>
+              <div class="text-end text-muted small">
+                Subject to moisture<br>and physical inspection
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-agri-primary btn-lg w-100 justify-content-center">
+            <i data-lucide="ticket"></i> Confirm Booking &amp; Generate Token
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

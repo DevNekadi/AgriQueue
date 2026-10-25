@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Environment variables
+.env
+
+# SQLite database and instance directory
+instance/
+*.sqlite3
+*.db
+
+# ML models and artifacts (generated)
+ml/*.joblib
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

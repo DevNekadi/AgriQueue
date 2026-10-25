@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Kisan Dashboard | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Top Greeting & Farmer Meta Banner -->
+  <div class="agri-card mb-4" style="background: linear-gradient(135deg, var(--forest-green) 0%, var(--deep-evergreen) 100%); color: var(--warm-ivory); border-left: 6px solid var(--sprout-green);">
+    <div class="row align-items-center g-3">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="role-pill farmer" style="background-color: var(--sprout-green); color: var(--deep-evergreen);">Kisan Portal</span>
+          <span class="small text-white-50">KCC: {{ profile.kisan_credit_card_no or 'MP-FARMER' }}</span>
+        </div>
+        <h2 class="text-white mb-1">Namaste, {{ user.name }}</h2>
+        <p class="mb-0 small text-white-50">
+          <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> {{ profile.village or 'Bhopal' }}, Tehsil {{ profile.tehsil or 'Bhopal' }}, {{ profile.district or 'Madhya Pradesh' }} • Land: {{ profile.land_area_acres or '0' }} Acres
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('booking') }}" class="btn btn-agri-secondary btn-lg">
+          <i data-lucide="plus-circle"></i> Book New Procurement Slot
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Queue Alert Banner (If farmer has an active booking today) -->
+  {% if active_booking %}
+    <div class="agri-card mb-4 border-2 shadow" style="border-color: var(--leaf-green); background: #fbfdf9;">
+      <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+        <div>
+          <span class="status-pill {{ active_booking.status.lower() }} mb-2">{{ active_booking.status }}</span>
+          <h4 class="mb-0">Today's Active Procurement Token</h4>
+          <p class="text-muted small mb-0">{{ active_booking.center_name }} • Slot: {{ active_booking.time_slot }}</p>
+        </div>
+        <div>
+          <a href="{{ url_for('queue_status', booking_id=active_booking.id) }}" class="btn btn-agri-primary">
+            <i data-lucide="activity"></i> View Live Turn Tracker
+          </a>
+        </div>
+      </div>
+
+      <div class="row g-3 align-items-center">
+        <!-- Token Number -->
+        <div class="col-md-4">
+          <div class="p-3 rounded" style="background-color: var(--soft-sage); border: 1px solid var(--sprout-green);">
+            <div class="text-uppercase small text-muted fw-bold">Token Number</div>
+            <div class="token-code text-dark" style="font-size: 1.5rem;">{{ active_booking.token_number }}</div>
+            <div class="small text-muted">{{ active_booking.crop_name }} • {{ active_booking.estimated_quantity }} Quintals</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Position & Farmers Ahead -->
+        <div class="col-md-4">
+          <div class="p-3 rounded" style="background-color: var(--pale-wheat); border: 1px solid #d8cca3;">
+            <div class="text-uppercase small text-muted fw-bold">Queue Position</div>
+            <div class="stat-value" style="font-size: 1.5rem;">
+              {% if active_pred.queue_position > 0 %}
+                #{{ active_pred.queue_position }} <span class="fs-6 fw-normal text-muted">({{ active_pred.farmers_ahead }} ahead)</span>
+              {% elif active_booking.status == 'IN_PROGRESS' %}
+                At Counter
+              {% else %}
+                Ready
+              {% endif %}
+            </div>
+            <div class="small text-muted">{{ active_booking.center_name }}</div>
+          </div>
+        </div>
+
+        <!-- AI Predicted Waiting Time -->
+        <div class="col-md-4">
+          <div class="p-3 rounded text-white" style="background: linear-gradient(135deg, var(--forest-green) 0%, var(--deep-evergreen) 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-uppercase small" style="color: var(--sprout-green); font-weight: 600;">AI Wait Estimate</span>
+              <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--sprout-green);"></i>
+            </div>
+            <div class="stat-value text-white my-1" style="font-size: 1.5rem;">
+              {{ active_pred.formatted_wait }}
+            </div>
+            <div class="small" style="color: var(--pale-wheat); font-size: 0.75rem;">
+              {{ active_pred.source }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Quick Nav Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="agri-card h-100">
+        <div class="stat-icon-wrapper mb-3" style="background-color: var(--soft-sage); color: var(--forest-green);">
+          <i data-lucide="calendar-plus"></i>
+        </div>
+        <h5>Schedule Harvest Delivery</h5>
+        <p class="text-muted small">Reserve a slot at Bhopal or Sehore mandi. Choose time slot to avoid long lines.</p>
+        <a href="{{ url_for('booking') }}" class="btn btn-sm btn-agri-secondary mt-auto">Book New Slot &rarr;</a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="agri-card h-100">
+        <div class="stat-icon-wrapper mb-3" style="background-color: var(--pale-wheat); color: var(--dark-soil);">
+          <i data-lucide="receipt"></i>
+        </div>
+        <h5>Booking &amp; Token History</h5>
+        <p class="text-muted small">Check all your previous tokens, verified weights, moisture grade, and procurement payments.</p>
+        <a href="{{ url_for('booking_history') }}" class="btn btn-sm btn-agri-secondary mt-auto">View All Tokens &rarr;</a>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="agri-card h-100">
+        <div class="stat-icon-wrapper mb-3" style="background-color: #fde8e4; color: var(--terracotta);">
+          <i data-lucide="store"></i>
+        </div>
+        <h5>Mandi Centers &amp; MSP Rates</h5>
+        <p class="text-muted small">Explore operating hours, active counters, and current government Minimum Support Prices.</p>
+        <a href="{{ url_for('centers') }}" class="btn btn-sm btn-agri-secondary mt-auto">Browse Mandis &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Produce Quality Guidance & Recent Activity -->
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="agri-card h-100">
+        <div class="agri-card-header">
+          <h5 class="mb-0">My Recent Bookings</h5>
+          <a href="{{ url_for('booking_history') }}" class="small fw-bold" style="color: var(--forest-green);">View All</a>
+        </div>
+
+        {% if bookings %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="small text-muted">
+                <tr>
+                  <th>Token</th>
+                  <th>Center &amp; Crop</th>
+                  <th>Date &amp; Slot</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for b in bookings[:5] %}
+                  <tr>
+                    <td>
+                      <span class="fw-bold text-dark font-monospace small">{{ b.token_number }}</span>
+                    </td>
+                    <td>
+                      <div class="fw-bold small">{{ b.crop_name }}</div>
+                      <div class="text-muted small" style="font-size: 0.75rem;">{{ b.center_name }}</div>
+                    </td>
+                    <td>
+                      <div class="small">{{ b.booking_date }}</div>
+                      <div class="text-muted small" style="font-size: 0.75rem;">{{ b.time_slot }}</div>
+                    </td>
+                    <td>
+                      <span class="status-pill {{ b.status.lower() }}">{{ b.status }}</span>
+                    </td>
+                    <td>
+                      <a href="{{ url_for('booking_details', booking_id=b.id) }}" class="btn btn-sm btn-outline-success py-1 px-2">
+                        Details
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i data-lucide="inbox" style="width: 36px; height: 36px;" class="mb-2"></i>
+            <p class="small">No procurement bookings yet. Click below to book your first slot.</p>
+            <a href="{{ url_for('booking') }}" class="btn btn-sm btn-agri-primary">Book Now</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Kisan Produce Preparation Checklist -->
+    <div class="col-lg-5">
+      <div class="agri-card h-100" style="background-color: var(--warm-ivory); border-color: var(--sprout-green);">
+        <h5 class="mb-3 d-flex align-items-center gap-2">
+          <i data-lucide="check-circle" style="color: var(--leaf-green);"></i>
+          Mandi Preparation Guidance
+        </h5>
+        <p class="small text-muted">Follow these FAQ standard steps before loading your tractor-trolley for fast inspection:</p>
+        
+        <ul class="list-unstyled small space-y-2 mb-0">
+          <li class="d-flex align-items-start gap-2 mb-2">
+            <i data-lucide="droplet" class="text-primary mt-1" style="width: 16px; height: 16px;"></i>
+            <span><strong>Moisture Limit:</strong> Ensure wheat moisture is under <strong>12%</strong>. Sun-dry grains to avoid rejection.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2 mb-2">
+            <i data-lucide="sparkles" class="text-warning mt-1" style="width: 16px; height: 16px;"></i>
+            <span><strong>Cleanliness &amp; Chaff:</strong> Remove stones, chaff, and foreign seeds to qualify for Grade A pricing.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2 mb-2">
+            <i data-lucide="file-text" class="text-success mt-1" style="width: 16px; height: 16px;"></i>
+            <span><strong>Documents Required:</strong> Bring your Kisan Credit Card, Aadhaar copy, and your AgriQueue Token SMS/receipt.</span>
+          </li>
+          <li class="d-flex align-items-start gap-2">
+            <i data-lucide="truck" class="text-secondary mt-1" style="width: 16px; height: 16px;"></i>
+            <span><strong>Arrival Timing:</strong> Reach the yard 15 minutes before your booked time slot.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

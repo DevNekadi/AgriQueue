@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Record Procurement Weighment | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="agri-card shadow">
+        <div class="agri-card-header">
+          <div>
+            <span class="role-pill operator mb-1">Mandi Weighbridge Console</span>
+            <h3 class="mb-0">Record Actual Procurement Weight</h3>
+          </div>
+          <a href="{{ url_for('operator_dashboard') }}" class="btn btn-sm btn-outline-secondary">Back to Queue</a>
+        </div>
+
+        <!-- Booking Overview -->
+        <div class="p-3 rounded mb-4" style="background-color: var(--soft-sage); border: 1px solid var(--sprout-green);">
+          <div class="row g-2 small">
+            <div class="col-sm-4">
+              <span class="text-muted">Token:</span><br>
+              <strong class="font-monospace fs-6 text-dark">{{ booking.token_number }}</strong>
+            </div>
+            <div class="col-sm-4">
+              <span class="text-muted">Farmer:</span><br>
+              <strong>{{ booking.farmer_name }}</strong> ({{ booking.farmer_phone }})
+            </div>
+            <div class="col-sm-4">
+              <span class="text-muted">Mandi Center:</span><br>
+              <strong>{{ booking.center_name }}</strong>
+            </div>
+            <div class="col-sm-4 mt-2">
+              <span class="text-muted">Crop Variety:</span><br>
+              <strong>{{ booking.crop_name }}</strong>
+            </div>
+            <div class="col-sm-4 mt-2">
+              <span class="text-muted">Declared Load:</span><br>
+              <strong>{{ booking.estimated_quantity }} Quintals</strong>
+            </div>
+            <div class="col-sm-4 mt-2">
+              <span class="text-muted">Current Mandi MSP:</span><br>
+              <strong>₹{{ booking.msp_price }} / Quintal</strong>
+            </div>
+          </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('record_procurement', booking_id=booking.id) }}">
+          <div class="row g-3 mb-4">
+            <!-- Actual Weighbridge Quantity -->
+            <div class="col-md-6">
+              <label for="actual_quantity" class="form-label">Actual Procured Weight (Quintals) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.05" min="0.1" class="form-control form-control-lg" id="actual_quantity" name="actual_quantity" required value="{{ booking.estimated_quantity }}" autofocus>
+                <span class="input-group-text">Qtl</span>
+              </div>
+              <div class="form-text">Gross minus tare weighbridge slip reading.</div>
+            </div>
+
+            <!-- MSP Rate -->
+            <div class="col-md-6">
+              <label for="rate_per_quintal" class="form-label">Applicable Rate (₹ per Quintal) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input type="number" step="1.0" min="1" class="form-control form-control-lg" id="rate_per_quintal" name="rate_per_quintal" required value="{{ booking.msp_price }}">
+              </div>
+              <div class="form-text">Default is government notified Minimum Support Price.</div>
+            </div>
+
+            <!-- Quality Grade -->
+            <div class="col-md-6">
+              <label for="grade_quality" class="form-label">Quality Grade</label>
+              <select class="form-select" id="grade_quality" name="grade_quality">
+                <option value="Grade A FAQ" selected>Grade A FAQ (Fair Average Quality)</option>
+                <option value="Grade B">Grade B (Minor dockage)</option>
+                <option value="Grade C">Grade C (Cleaned on yard)</option>
+              </select>
+            </div>
+
+            <!-- Moisture Percentage -->
+            <div class="col-md-6">
+              <label for="moisture_percentage" class="form-label">Moisture Content (%) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.1" min="5" max="30" class="form-control" id="moisture_percentage" name="moisture_percentage" required value="11.8">
+                <span class="input-group-text">%</span>
+              </div>
+              <div class="form-text">MP mandi standard limit: 12.0% maximum.</div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="col-12">
+              <label for="remarks" class="form-label">Operator Notes &amp; Weighbridge Serial</label>
+              <input type="text" class="form-control" id="remarks" name="remarks" placeholder="e.g. Weighbridge Counter #1 verified. Standard jute bag packaging.">
+            </div>
+          </div>
+
+          <!-- Total Payment Computation Preview -->
+          <div class="p-3 rounded mb-4" style="background: linear-gradient(135deg, var(--forest-green) 0%, var(--deep-evergreen) 100%); color: var(--warm-ivory);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="small text-uppercase text-white-50">Total MSP Disbursal Amount</span>
+                <div class="fs-2 fw-bold" style="color: var(--sprout-green);" id="total-disbursal-display">
+                  ₹ 0.00
+                </div>
+              </div>
+              <div class="text-end small text-white-50">
+                Payment status will be marked<br>
+                <span class="badge bg-warning text-dark">PROCESSED</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-agri-primary btn-lg w-100 justify-content-center">
+            <i data-lucide="check-circle-2"></i> Complete Procurement &amp; Issue Receipt
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const qtyInput = document.getElementById("actual_quantity");
+  const rateInput = document.getElementById("rate_per_quintal");
+  const display = document.getElementById("total-disbursal-display");
+
+  function calc() {
+    const q = parseFloat(qtyInput.value || 0);
+    const r = parseFloat(rateInput.value || 0);
+    const total = q * r;
+    display.textContent = total.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2
+    });
+  }
+
+  qtyInput.addEventListener("input", calc);
+  rateInput.addEventListener("input", calc);
+  calc();
+});
+</script>
+{% endblock %}

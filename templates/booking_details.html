@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Token Details | {{ booking.token_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <a href="{{ url_for('booking_history') }}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Token History</a>
+      <h2 class="mb-0">Token &amp; Procurement Summary</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <span class="status-pill {{ booking.status.lower() }}">{{ booking.status }}</span>
+      <button onclick="window.print()" class="btn btn-sm btn-outline-dark">
+        <i data-lucide="printer" style="width: 14px; height: 14px;"></i> Print Slip
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Token Slip Card -->
+      <div class="agri-card shadow">
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+          <div>
+            <div class="text-uppercase small text-muted fw-bold">Token Number</div>
+            <h3 class="font-monospace text-success mb-0" style="color: var(--forest-green) !important;">{{ booking.token_number }}</h3>
+          </div>
+          <div class="text-end">
+            <span class="role-pill farmer">{{ booking.center_code }}</span>
+            <div class="small text-muted mt-1">{{ booking.center_name }}</div>
+          </div>
+        </div>
+
+        <h6 class="text-muted text-uppercase small fw-bold mb-3">Booking Particulars</h6>
+        <div class="row g-3 small mb-4">
+          <div class="col-sm-6">
+            <span class="text-muted">Farmer Name:</span><br>
+            <strong>{{ booking.farmer_name }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Mobile Number:</span><br>
+            <strong>{{ booking.farmer_phone }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Scheduled Date:</span><br>
+            <strong>{{ booking.booking_date }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Scheduled Slot:</span><br>
+            <strong>{{ booking.time_slot }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Declared Crop:</span><br>
+            <strong>{{ booking.crop_name }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Estimated Load:</span><br>
+            <strong>{{ booking.estimated_quantity }} Quintals</strong>
+          </div>
+        </div>
+
+        <!-- Procurement Record (If Completed) -->
+        {% if proc_record %}
+          <div class="p-3 rounded mb-4" style="background-color: var(--soft-sage); border: 2px solid var(--leaf-green);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0 text-success" style="color: var(--deep-evergreen) !important;">
+                <i data-lucide="award"></i> Verified Mandi Procurement Weight Slip
+              </h5>
+              <span class="badge bg-success" style="background-color: var(--leaf-green) !important;">
+                {{ proc_record.payment_status }}
+              </span>
+            </div>
+            <hr class="my-2" style="border-color: rgba(79, 138, 69, 0.3);">
+
+            <div class="row g-3 small mt-1">
+              <div class="col-sm-4">
+                <span class="text-muted">Actual Procured Weight:</span><br>
+                <strong class="fs-6 text-dark">{{ proc_record.actual_quantity }} Quintals</strong>
+              </div>
+              <div class="col-sm-4">
+                <span class="text-muted">Moisture Content:</span><br>
+                <strong>{{ proc_record.moisture_percentage }}% ({{ proc_record.grade_quality }})</strong>
+              </div>
+              <div class="col-sm-4">
+                <span class="text-muted">Applicable MSP Rate:</span><br>
+                <strong>₹{{ proc_record.rate_per_quintal }} / Quintal</strong>
+              </div>
+              <div class="col-12 mt-2 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold fs-6">Total Disbursal Amount:</span>
+                  <span class="fs-4 fw-bold" style="color: var(--forest-green);">
+                    ₹ {{ "{:,.2f}".format(proc_record.total_amount) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {% if proc_record.remarks %}
+              <div class="small mt-2 pt-2 text-muted fst-italic">
+                Notes: {{ proc_record.remarks }}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Timestamps & Milestones -->
+        <h6 class="text-muted text-uppercase small fw-bold mb-3">Service Timestamps</h6>
+        <div class="row g-2 small text-muted">
+          <div class="col-sm-4">Booked: {{ booking.created_at }}</div>
+          <div class="col-sm-4">Arrival: {{ booking.arrival_time or 'Pending Arrival' }}</div>
+          <div class="col-sm-4">Service Start: {{ booking.service_start_time or 'Pending Service' }}</div>
+          <div class="col-sm-4">Completed: {{ booking.completion_time or 'In Process' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Quick Actions -->
+      <div class="agri-card mb-4">
+        <h6 class="fw-bold mb-3">Next Actions</h6>
+        {% if booking.status in ['WAITING', 'CALLED', 'IN_PROGRESS', 'CONFIRMED'] %}
+          <a href="{{ url_for('queue_status', booking_id=booking.id) }}" class="btn btn-agri-primary w-100 mb-2">
+            <i data-lucide="activity"></i> Open Live Turn Tracker
+          </a>
+        {% endif %}
+
+        <a href="{{ url_for('booking') }}" class="btn btn-agri-secondary w-100 mb-2">
+          <i data-lucide="calendar-plus"></i> Book Another Slot
+        </a>
+
+        {% if booking.status in ['REQUESTED', 'CONFIRMED'] %}
+          <form method="POST" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100 mt-2">
+              Cancel Booking
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

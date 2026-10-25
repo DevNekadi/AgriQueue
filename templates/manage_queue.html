@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Queue | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <a href="{{ url_for('operator_dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Operator Console</a>
+      <h2 class="mb-0">Procurement Queue Management</h2>
+      <p class="text-muted small mb-0">Search, filter, assign counters, and manage farmer arrivals across all slots.</p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="agri-card mb-4 p-3">
+    <form method="GET" action="{{ url_for('manage_queue') }}" class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label for="filter_center" class="form-label small fw-bold">Mandi Yard</label>
+        <select class="form-select form-select-sm" id="filter_center" name="center_id">
+          <option value="">All Mandi Yards</option>
+          {% for c in centers %}
+            <option value="{{ c.id }}" {% if selected_center_id == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="filter_date" class="form-label small fw-bold">Date</label>
+        <input type="date" class="form-control form-control-sm" id="filter_date" name="date" value="{{ selected_date }}">
+      </div>
+      <div class="col-md-3">
+        <label for="filter_status" class="form-label small fw-bold">Status</label>
+        <select class="form-select form-select-sm" id="filter_status" name="status">
+          <option value="">All Statuses</option>
+          <option value="REQUESTED" {% if selected_status == 'REQUESTED' %}selected{% endif %}>REQUESTED</option>
+          <option value="CONFIRMED" {% if selected_status == 'CONFIRMED' %}selected{% endif %}>CONFIRMED</option>
+          <option value="WAITING" {% if selected_status == 'WAITING' %}selected{% endif %}>WAITING</option>
+          <option value="CALLED" {% if selected_status == 'CALLED' %}selected{% endif %}>CALLED</option>
+          <option value="IN_PROGRESS" {% if selected_status == 'IN_PROGRESS' %}selected{% endif %}>IN_PROGRESS</option>
+          <option value="COMPLETED" {% if selected_status == 'COMPLETED' %}selected{% endif %}>COMPLETED</option>
+          <option value="SKIPPED" {% if selected_status == 'SKIPPED' %}selected{% endif %}>SKIPPED</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-agri-primary w-100">Apply Filter</button>
+        <a href="{{ url_for('manage_queue') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Queue Table -->
+  <div class="agri-card p-0 shadow">
+    <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <input type="text" id="table-quick-search" class="form-control form-control-sm" placeholder="Search by Token, Farmer Name or Phone..." style="max-width: 300px;">
+      <span class="small text-muted">Showing {{ bookings|length }} booking records</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover table-agri align-middle mb-0 filter-target-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Farmer</th>
+            <th>Center</th>
+            <th>Crop</th>
+            <th>Declared Qtl</th>
+            <th>Date &amp; Slot</th>
+            <th>Status</th>
+            <th>Counter</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if bookings %}
+            {% for b in bookings %}
+              <tr>
+                <td>
+                  <span class="font-monospace fw-bold fs-6">{{ b.token_number }}</span>
+                </td>
+                <td>
+                  <div class="fw-bold">{{ b.farmer_name }}</div>
+                  <div class="text-muted small">{{ b.farmer_phone }}</div>
+                </td>
+                <td>{{ b.center_name }}</td>
+                <td>{{ b.crop_name }}</td>
+                <td>{{ b.estimated_quantity }} Qtl</td>
+                <td>
+                  <div class="small">{{ b.booking_date }}</div>
+                  <div class="text-muted small">{{ b.time_slot }}</div>
+                </td>
+                <td>
+                  <span class="status-pill {{ b.status.lower() }}">{{ b.status }}</span>
+                </td>
+                <td>
+                  <!-- Counter Assignment Form -->
+                  <form method="POST" action="{{ url_for('assign_counter', booking_id=b.id) }}" class="d-flex align-items-center gap-1">
+                    <select name="counter" class="form-select form-select-sm" style="width: 70px;" onchange="this.form.submit()">
+                      <option value="1" {% if b.assigned_counter == 1 %}selected{% endif %}>#1</option>
+                      <option value="2" {% if b.assigned_counter == 2 %}selected{% endif %}>#2</option>
+                      <option value="3" {% if b.assigned_counter == 3 %}selected{% endif %}>#3</option>
+                      <option value="4" {% if b.assigned_counter == 4 %}selected{% endif %}>#4</option>
+                    </select>
+                  </form>
+                </td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="{{ url_for('booking_details', booking_id=b.id) }}" class="btn btn-sm btn-outline-secondary py-1 px-2">
+                      View
+                    </a>
+                    {% if b.status == 'IN_PROGRESS' %}
+                      <a href="{{ url_for('record_procurement', booking_id=b.id) }}" class="btn btn-sm btn-agri-primary py-1 px-2">
+                        Weigh
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">
+                No bookings match the selected criteria.
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Center Operators | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Dashboard</a>
+      <h2 class="mb-0">Mandi Center Operators</h2>
+      <p class="text-muted small mb-0">Authorized Mandi procurement personnel and yard assignments.</p>
+    </div>
+    <button type="button" class="btn btn-agri-primary" data-bs-toggle="modal" data-bs-target="#addOperatorModal">
+      <i data-lucide="user-plus"></i> Register Center Operator
+    </button>
+  </div>
+
+  <div class="agri-card p-0 shadow">
+    <div class="table-responsive">
+      <table class="table table-hover table-agri align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Operator Name</th>
+            <th>Contact Phone</th>
+            <th>Email</th>
+            <th>Assigned Mandi Center</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for op in operators %}
+            <tr>
+              <td>
+                <div class="fw-bold">{{ op.name }}</div>
+                <span class="role-pill operator">OPERATOR</span>
+              </td>
+              <td>{{ op.phone }}</td>
+              <td>{{ op.email or '—' }}</td>
+              <td>
+                {% if op.center_name %}
+                  <span class="badge bg-success" style="background-color: var(--forest-green) !important;">
+                    {{ op.center_name }} ({{ op.district }})
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Unassigned</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-success">Active</span>
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#assignCenterModal{{ op.id }}">
+                  Change Yard
+                </button>
+
+                <!-- Modal for assigning operator to center -->
+                <div class="modal fade" id="assignCenterModal{{ op.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form method="POST" action="{{ url_for('assign_operator_center', operator_id=op.id) }}">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Assign Mandi Yard for {{ op.name }}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <label class="form-label">Select Mandi Yard</label>
+                          <select name="center_id" class="form-select" required>
+                            {% for c in centers %}
+                              <option value="{{ c.id }}" {% if op.center_id == c.id %}selected{% endif %}>
+                                {{ c.name }} ({{ c.district }})
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-agri-primary">Save Assignment</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal for Creating New Operator -->
+  <div class="modal fade" id="addOperatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" action="{{ url_for('manage_operators') }}">
+          <div class="modal-header">
+            <h5 class="modal-title">Create Mandi Operator Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" required placeholder="e.g. Rajesh Kushwaha">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone Number (10 Digits) <span class="text-danger">*</span></label>
+              <input type="tel" name="phone" pattern="[0-9]{10}" class="form-control" required placeholder="9876500003">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Official Email</label>
+              <input type="email" name="email" class="form-control" placeholder="operator@agriqueue.gov.in">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Assigned Mandi Yard <span class="text-danger">*</span></label>
+              <select name="center_id" class="form-select" required>
+                {% for c in centers %}
+                  <option value="{{ c.id }}">{{ c.name }} ({{ c.district }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password <span class="text-danger">*</span></label>
+              <input type="password" name="password" minlength="6" class="form-control" required value="Agri@1234">
+              <div class="form-text">Default demo password: <code>Agri@1234</code></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-agri-primary">Create Operator</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

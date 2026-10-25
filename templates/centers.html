@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Procurement Centers | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4">
+    <h2>Agricultural Procurement Mandis</h2>
+    <p class="text-muted">Approved Krishi Upaj Mandi Samitis and sub-yards operating under the AgriQueue smart token system.</p>
+  </div>
+
+  <div class="row g-4">
+    {% for c in centers %}
+      <div class="col-lg-6">
+        <div class="agri-card h-100">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <span class="badge bg-success mb-2" style="background-color: var(--forest-green) !important;">{{ c.district }} District</span>
+              <h4 class="mb-1">{{ c.name }}</h4>
+              <p class="text-muted small mb-0"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> {{ c.address }}</p>
+            </div>
+            <span class="role-pill farmer">{{ c.code }}</span>
+          </div>
+
+          <div class="row g-2 mb-3 small">
+            <div class="col-6">
+              <div class="p-2 rounded bg-light">
+                <span class="text-muted">Operating Hours:</span><br>
+                <strong>{{ c.operating_hours }}</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2 rounded bg-light">
+                <span class="text-muted">Active Counters:</span><br>
+                <strong>{{ c.active_counters }} Weighbridges</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2 rounded bg-light">
+                <span class="text-muted">Daily Capacity:</span><br>
+                <strong>{{ c.daily_capacity }} Farmer Slots</strong>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2 rounded bg-light">
+                <span class="text-muted">Helpline:</span><br>
+                <strong>{{ c.contact_phone }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="small fw-bold text-muted text-uppercase mb-2">Supported Crops &amp; Minimum Support Price (MSP)</h6>
+          <div class="d-flex flex-wrap gap-2 mb-4">
+            {% if c.crops %}
+              {% for crop in c.crops %}
+                <span class="badge p-2" style="background-color: var(--soft-sage); color: var(--forest-green); border: 1px solid var(--sprout-green);">
+                  {{ crop.name }} — ₹{{ crop.msp_price }} / Qtl
+                </span>
+              {% endfor %}
+            {% else %}
+              <span class="text-muted small">All notified Rabi &amp; Kharif crops</span>
+            {% endif %}
+          </div>
+
+          <div class="mt-auto">
+            <a href="{{ url_for('booking', center_id=c.id) }}" class="btn btn-agri-primary w-100 justify-content-center">
+              <i data-lucide="calendar-check"></i> Book Queue Token at {{ c.district }}
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

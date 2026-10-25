@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" fill="none">
+  <!-- AgriQueue Botanical Seedling & Orderly Queue Motif -->
+  <g transform="translate(4, 4)">
+    <!-- Soil / Field Base Arc -->
+    <path d="M4 36C12 33 24 33 34 36" stroke="#A8C97A" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Central Growing Sprout Stem -->
+    <path d="M19 34C19 24 19 14 26 8" stroke="#4F8A45" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Left Leaf -->
+    <path d="M19 22C12 21 8 15 10 9C15 9 19 14 19 22Z" fill="#A8C97A" stroke="#214E34" stroke-width="1.5"/>
+    
+    <!-- Right Leaf -->
+    <path d="M22 17C29 15 34 8 31 3C26 4 22 10 22 17Z" fill="#4F8A45" stroke="#153B2A" stroke-width="1.5"/>
+    
+    <!-- Orderly Queue Pathway Dots -->
+    <circle cx="33" cy="27" r="2.5" fill="#EEE5C8" stroke="#214E34" stroke-width="1"/>
+    <circle cx="39" cy="23" r="2.5" fill="#A8C97A" stroke="#214E34" stroke-width="1"/>
+    <circle cx="43" cy="18" r="2.5" fill="#4F8A45" stroke="#153B2A" stroke-width="1"/>
+  </g>
+  
+  <!-- Text: AgriQueue -->
+  <text x="56" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="21" fill="#FFFFFF" letter-spacing="-0.5">Agri<tspan fill="#A8C97A">Queue</tspan></text>
+  <text x="57" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="8" fill="#EEE5C8" letter-spacing="1.5">KISAN SMART TOKEN</text>
+</svg>

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}My Procurement Tokens | AgriQueue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2>My Procurement Tokens</h2>
+      <p class="text-muted small mb-0">Record of all active and past mandi procurement bookings.</p>
+    </div>
+    <a href="{{ url_for('booking') }}" class="btn btn-agri-primary">
+      <i data-lucide="plus-circle"></i> New Booking
+    </a>
+  </div>
+
+  <div class="agri-card p-0">
+    {% if bookings %}
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <input type="text" id="table-quick-search" class="form-control" placeholder="Search by token, center, crop or status..." style="max-width: 320px;">
+        <span class="small text-muted">Total: {{ bookings|length }} Token(s)</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover table-agri align-middle mb-0 filter-target-table">
+          <thead>
+            <tr>
+              <th>Token Number</th>
+              <th>Mandi Center</th>
+              <th>Crop Variety</th>
+              <th>Quantity (Qtl)</th>
+              <th>Date &amp; Slot</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+              <tr>
+                <td>
+                  <span class="font-monospace fw-bold text-dark">{{ b.token_number }}</span>
+                </td>
+                <td>
+                  <div class="fw-bold small">{{ b.center_name }}</div>
+                  <div class="text-muted small" style="font-size: 0.75rem;">{{ b.district }}</div>
+                </td>
+                <td>{{ b.crop_name }}</td>
+                <td>
+                  <strong>{{ b.estimated_quantity }} Qtl</strong>
+                </td>
+                <td>
+                  <div class="small">{{ b.booking_date }}</div>
+                  <div class="text-muted small" style="font-size: 0.75rem;">{{ b.time_slot }}</div>
+                </td>
+                <td>
+                  <span class="status-pill {{ b.status.lower() }}">{{ b.status }}</span>
+                </td>
+                <td>
+                  <div class="d-flex gap-1">
+                    {% if b.status in ['WAITING', 'CALLED', 'IN_PROGRESS', 'CONFIRMED'] %}
+                      <a href="{{ url_for('queue_status', booking_id=b.id) }}" class="btn btn-sm btn-agri-primary py-1 px-2" title="Track Live Turn">
+                        <i data-lucide="activity" style="width: 14px; height: 14px;"></i> Turn
+                      </a>
+                    {% endif %}
+                    <a href="{{ url_for('booking_details', booking_id=b.id) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="View Details">
+                      Details
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i data-lucide="ticket" style="width: 48px; height: 48px;" class="text-muted mb-2"></i>
+        <h5>No Tokens Found</h5>
+        <p class="text-muted small">You haven't booked any mandi procurement visits yet.</p>
+        <a href="{{ url_for('booking') }}" class="btn btn-agri-primary">Schedule First Visit</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
